@@ -33,3 +33,43 @@ def bot_factory(
         for onetime_job in onetime_jobs:
             application.job_queue.run_once(onetime_job[0], **onetime_job[1])
     return application
+
+
+class BotBuilder:
+    def __init__(self, bot_token: str, bot_config: BotConfig):
+        self.bot_token = bot_token
+        self.bot_config = bot_config
+        self.handlers = []
+        self.repeating_jobs = []
+        self.onetime_jobs = []
+
+    def add_handlers(self, handlers: List[BaseHandler]):
+        self.handlers.extend(handlers)
+        return self
+
+    def add_onetime_jobs(self, onetime_jobs: List[Tuple[JobCallback[CCT], dict]]):
+        self.onetime_jobs.extend(onetime_jobs)
+        return self
+
+    def add_repeating_jobs(self, repeating_jobs: List[Tuple[JobCallback[CCT], dict]]):
+        self.repeating_jobs.extend(repeating_jobs)
+        return self
+
+    def build(self):
+        application = (
+            ApplicationBuilder()
+            .token(self.bot_token)
+            .http_version("1.1")
+            .get_updates_http_version("1.1")
+            .concurrent_updates(3)
+            .build()
+        )
+        application.bot_data["bot_config"] = self.bot_config
+        application.add_handlers(self.handlers)
+
+        for repeating_job in self.repeating_jobs:
+            application.job_queue.run_repeating(repeating_job[0], **repeating_job[1])
+
+        for onetime_job in self.onetime_jobs:
+            application.job_queue.run_once(onetime_job[0], **onetime_job[1])
+        return application
