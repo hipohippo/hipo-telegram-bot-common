@@ -3,7 +3,7 @@ from typing import List, Tuple, Optional
 from telegram.ext import BaseHandler, Application, ApplicationBuilder
 from telegram.ext._utils.types import JobCallback, CCT
 
-from hipo_telegram_bot_common.bot_config import BotConfig
+from hipo_telegram_bot_common.bot_config.bot_config import BotConfig
 
 
 def bot_factory(
@@ -40,12 +40,16 @@ class BotBuilder:
         self.bot_token = bot_token
         self.bot_config = bot_config
         self.handlers = []
+        self.error_handler = None
         self.repeating_jobs = []
         self.onetime_jobs = []
 
     def add_handlers(self, handlers: List[BaseHandler]):
         self.handlers.extend(handlers)
         return self
+
+    def add_error_handler(self, error_handler: BaseHandler):
+        self.error_handler = error_handler
 
     def add_onetime_jobs(self, onetime_jobs: List[Tuple[JobCallback[CCT], dict]]):
         self.onetime_jobs.extend(onetime_jobs)
@@ -66,6 +70,8 @@ class BotBuilder:
         )
         application.bot_data["bot_config"] = self.bot_config
         application.add_handlers(self.handlers)
+        if self.error_handler:
+            application.add_error_handler(self.error_handler)
 
         for repeating_job in self.repeating_jobs:
             application.job_queue.run_repeating(repeating_job[0], **repeating_job[1])
