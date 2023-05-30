@@ -1,3 +1,4 @@
+import logging
 from typing import List, Tuple, Optional
 
 from telegram.ext import BaseHandler, Application, ApplicationBuilder
@@ -60,6 +61,7 @@ class BotBuilder:
         return self
 
     def build(self):
+        logging.getLogger("httpx").setLevel("WARNING")
         application = (
             ApplicationBuilder()
             .token(self.bot_token)
