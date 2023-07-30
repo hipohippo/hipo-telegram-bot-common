@@ -18,7 +18,7 @@ def get_chrome_driver(config: dict, load_extension: False, given_port: Optional[
         executable_path=os.path.join(config["chromedriver_path"], config["chrome_driver"]), options=options
     )
     time.sleep(5)
-    while len(driver.window_handles) < int(config["max_web_driver_window"]):
+    while len(driver.window_handles) < int(config.get("max_web_driver_window", 1)):
         driver.execute_script("""window.open("http://www.google.com","_blank");""")
         time.sleep(2)
     driver.switch_to.window(driver.window_handles[0])
