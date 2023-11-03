@@ -44,5 +44,6 @@ def publish_chunk(telegraph_publisher: Telegraph, title: str, html_content_group
                 "".join(html_content_group[cutoff_index[idx] : cutoff_index[idx + 1]]),
             )
         )
-        time.sleep(10)
+        if idx != len(cutoff_index) - 2:
+            time.sleep(10)
     return url_list
