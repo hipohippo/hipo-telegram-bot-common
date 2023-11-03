@@ -11,8 +11,8 @@ async def start_bot_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     bot_name = update.message.text.split(" ")[1]
     bot_exec = {"mta": "/home/hipo/botrun/bot/mta-subway-bot/start-mta-subway-bot.sh"}
     bot_log = {"mta": "/home/hipo/botrun/bot/mta-subway-bot/mta-subway-bot.log"}
-
-    p = subprocess.Popen(bot_exec[bot_name], stdout=bot_log[bot_name], start_new_session=True)
+    with open(bot_log[bot_name], "w+") as logfile:
+        p = subprocess.Popen(bot_exec[bot_name], stdout=logfile, start_new_session=True)
     await update.message.reply_text(text=f"{p.pid}: started {bot_exec}", parse_mode="HTML")
 
 
