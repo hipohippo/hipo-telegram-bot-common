@@ -8,7 +8,7 @@ from telegraph import Telegraph
 def publish_single(telegraph_publisher: Telegraph, title: str, html_content: str) -> str:
     response = telegraph_publisher.create_page(title=title, html_content=html_content)
     url = response["url"]
-    logging.info(f"published to {url}")
+    logging.getLogger(__name__).info(f"published to {url}")
     return url
 
 

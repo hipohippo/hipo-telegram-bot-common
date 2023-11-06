@@ -1,9 +1,17 @@
 from abc import ABC
 from typing import List, Optional, Union
 
+import redis
+
 
 class BotConfig(ABC):
-    def __init__(self, heart_beat_chat: Union[int,str], error_notify_chat: Union[int, str], white_list_id: Optional[List[int]], bot_name: str):
+    def __init__(
+        self,
+        heart_beat_chat: Union[int, str],
+        error_notify_chat: Union[int, str],
+        white_list_id: Optional[List[int]],
+        bot_name: str,
+    ):
         """
 
         :param heart_beat_chat:
@@ -15,6 +23,7 @@ class BotConfig(ABC):
         self._error_notify_chat: int = int(error_notify_chat)
         self._white_list_id: List[int] = white_list_id
         self._bot_name: str = bot_name
+        self.redis_conn = redis.Redis(host="localhost", port=6379, db=0)
 
     @property
     def error_notify_chat(self) -> int:

@@ -1,10 +1,15 @@
 import logging
+from configparser import SectionProxy
 from functools import wraps
 from typing import Callable, List
 
 from telegram import Update
 from telegram.ext import ContextTypes
 from telegram.ext._utils.types import HandlerCallback
+
+
+def section_proxy_to_dict(section_proxy: SectionProxy) -> dict:
+    return {k: v for k, v in section_proxy.items()}
 
 
 def update_irrelevant_callback_wrapper(f: Callable) -> HandlerCallback:
@@ -50,7 +55,7 @@ def restricted(func):
     return wrapped
 
 
-def format_white_list(white_list_str:str) -> List[int]:
+def format_white_list(white_list_str: str) -> List[int]:
     return [int(x.strip()) for x in white_list_str.split(",")]
 
 

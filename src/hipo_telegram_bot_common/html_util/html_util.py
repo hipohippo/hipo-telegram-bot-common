@@ -10,7 +10,7 @@ def extract_content(web_driver: WebDriver, url: str) -> Tuple[str, List[str], Be
     web_driver.get(url)
     soup = BeautifulSoup(web_driver.page_source, "html.parser")
     title, paragraphs = extract_from_soup(soup)
-    logging.info(f"extracted {title}")
+    logging.getLogger(__name__).info(f"extracted {title}")
     return title, paragraphs, soup
 
 

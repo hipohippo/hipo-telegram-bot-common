@@ -1,12 +1,14 @@
 import logging
 from typing import List, Tuple, Optional
 
-from telegram.ext import BaseHandler, Application, ApplicationBuilder
+from telegram.ext import BaseHandler, Application, ApplicationBuilder, Defaults, CommandHandler
 from telegram.ext._utils.types import JobCallback, CCT
 
 from hipo_telegram_bot_common.bot_config.bot_config import BotConfig
+from hipo_telegram_bot_common.common_handler import poke_handler, heart_beat_job
 
 
+## not in use. to be deprecated
 def bot_factory(
     bot_token: str,
     bot_config: BotConfig,
@@ -37,12 +39,17 @@ def bot_factory(
 
 
 class BotBuilder:
+    default_repeating_jobs = [(heart_beat_job, {"first": 5, "interval": 4 * 60 * 60})]
+    default_handler = [
+        CommandHandler("poke", poke_handler),
+    ]
+
     def __init__(self, bot_token: str, bot_config: BotConfig):
         self.bot_token = bot_token
         self.bot_config = bot_config
-        self.handlers = []
+        self.handlers = self.default_handler.copy()
+        self.repeating_jobs = self.default_repeating_jobs.copy()
         self.error_handler = None
-        self.repeating_jobs = []
         self.onetime_jobs = []
 
     def add_handlers(self, handlers: List[BaseHandler]):
@@ -61,6 +68,9 @@ class BotBuilder:
         return self
 
     def build(self):
+        # do not await handler
+        # https://stackoverflow.com/questions/77034884/how-to-make-my-telegram-bots-handler-not-block-each-other
+        df = Defaults(block=False)
         logging.getLogger("httpx").setLevel("WARNING")
         application = (
             ApplicationBuilder()
@@ -68,6 +78,7 @@ class BotBuilder:
             .http_version("1.1")
             .get_updates_http_version("1.1")
             .concurrent_updates(3)
+            .defaults(df)  #
             .build()
         )
         application.bot_data["bot_config"] = self.bot_config
